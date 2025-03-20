@@ -1,0 +1,80 @@
+<form id="add-inventory-form">
+    <h2>Add Inventory</h2>
+
+    <div class="form-group">
+        <label for="item-type">Item Type:</label>
+        <select id="item-type" name="item-type">
+            <option value="new">New Item</option>
+            <option value="existing">Select Existing Item</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="new-item-input">
+        <label for="item-name">Item Name:</label>
+        <input type="text" id="item-name" name="item-name" required>
+    </div>
+
+    <div class="form-group" id="existing-item-input" style="display: none;">
+        <label for="item-select">Select Item:</label>
+        <select id="item-select" name="item-select">
+            <option value="">-- Select an Item --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="code-no">Code No. (Optional):</label>
+        <input type="text" id="code-no" name="code-no">
+    </div>
+
+    <div class="form-group">
+        <label for="purchased-price">Purchased Price:</label>
+        <input type="number" id="purchased-price" name="purchased-price" step="0.01" required>
+    </div>
+
+    <div class="form-group">
+        <label for="selling-price">Selling Price:</label>
+        <input type="number" id="selling-price" name="selling-price" step="0.01" required>
+    </div>
+
+    <div class="form-group">
+        <label for="total-purchased">Total Purchased:</label>
+        <input type="number" id="total-purchased" name="total-purchased" required>
+    </div>
+
+    <div class="form-group">
+        <label for="remark">Remark (Optional):</label>
+        <textarea id="remark" name="remark" rows="3"></textarea>
+    </div>
+
+    <div class="form-buttons">
+        <button type="button" class="save">Save</button>
+        <button type="button" class="cancel">Cancel</button>
+    </div>
+</form>
+
+<script>
+    // Toggle between new item input and existing item dropdown
+    function toggleItemInput() {
+        const itemType = document.getElementById('item-type').value;
+        const newItemInput = document.getElementById('new-item-input');
+        const existingItemInput = document.getElementById('existing-item-input');
+
+        if (itemType === 'new') {
+            newItemInput.style.display = 'block';
+            existingItemInput.style.display = 'none';
+            document.getElementById('item-name').required = true;
+            document.getElementById('item-select').required = false;
+        } else {
+            newItemInput.style.display = 'none';
+            existingItemInput.style.display = 'block';
+            document.getElementById('item-name').required = false;
+            document.getElementById('item-select').required = true;
+        }
+    }
+
+    // Bind the onchange event after the DOM is ready
+    document.getElementById('item-type').addEventListener('change', toggleItemInput);
+
+    // Call toggleItemInput initially to set the correct state
+    toggleItemInput();
+</script>

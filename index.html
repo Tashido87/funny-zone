@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUNNY ZONE Sale Management</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="logo">
+                <h1>FUNNY ZONE Management</h1>
+            </div>
+            <nav class="menu">
+                <ul>
+                    <li class="menu-item" data-target="dashboard">Dashboard</li>
+                    <li class="menu-item">
+                        Inventory
+                        <ul class="submenu">
+                            <li data-target="add-inventory">Add Inventory</li>
+                            <li data-target="adjust-inventory">Adjust Inventory</li>
+                            <li data-target="damage">Damage</li>
+                            <li data-target="view-stock">View Stock</li>
+                        </ul>
+                    </li>
+                    <li class="menu-item">
+                        Sale
+                        <ul class="submenu">
+                            <li data-target="new-sale">New Sale</li>
+                            <li data-target="edit-sold">Edit Sold</li>
+                            <li data-target="cancel-return">Cancel/Return</li>
+                        </ul>
+                    </li>
+                    <li class="menu-item">
+                        Report
+                        <ul class="submenu">
+                            <li data-target="stock-report">Stock Report</li>
+                            <li data-target="sale-report">Sale Report</li>
+                            <li data-target="profit-report">Profit Report</li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content" id="content">
+            <div class="main-content" id="main-content">
+                <h2>Welcome to Funny Zone Sale Management</h2>
+                <p>Select an option from the menu to get started.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
