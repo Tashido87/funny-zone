@@ -195,7 +195,7 @@ function populateInventoryCards() {
         card.innerHTML = `
             <h4 title="${item.item_name}">${item.item_name}</h4>
             <div class="inventory-details">
-                <p><span>Purchase Price:</span> <span>${item.purchase_price || '0'} MMK</span></p>
+                <p><span>Purchase Price:</span> <span>${item.purchased_price || '0'} MMK</span></p>
                 <p><span>In Stock:</span> <span>${remaining}</span></p>
                 <p><span>Selling Price:</span> <span>${item.selling_price || '0'} MMK</span></p>
                 <p><span>Profit:</span> <span>${item.profit || '0'} MMK</span></p>
