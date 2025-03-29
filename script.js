@@ -248,6 +248,22 @@ function setupEventListeners() {
             DOM.modal.style.display = 'none';
         }
     });
+
+    // Add Enter key listener for customer name search
+    document.getElementById('customerSearch').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent any default form submission behavior
+            handleSearch(); // Trigger the search function
+        }
+    });
+
+    // Add Enter key listener for order ID search
+    document.getElementById('orderIdSearch').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent any default form submission behavior
+            handleSearch(); // Trigger the search function
+        }
+    });
 }
 
 // Handle search functionality
@@ -322,13 +338,20 @@ function displaySearchResults(results) {
             ? new Date(sale.order_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
             : 'N/A';
 
+        // Check if Remarks contains "Cancel" or "Return" (case-insensitive)
+        const remarks = (sale.remarks || '').toLowerCase();
+        const isCancelledOrReturned = remarks.includes('cancel') || remarks.includes('return');
+        if (isCancelledOrReturned) {
+            tr.classList.add('cancelled-row'); // Add class for greyed-out styling
+        }
+
         tr.innerHTML = `
-            <td>${sale.order_id || 'N/A'}</td>
-            <td>${formattedDate}</td>
-            <td>${sale.customer_name || 'N/A'}</td>
-            <td>${sale.item_purchased || 'N/A'}</td>
-            <td>${sale.total_value ? `${sale.total_value} MMK` : 'N/A'}</td>
-            <td>${sale.payment_status || 'N/A'}</td>
+            <td class="sale-info">${sale.order_id || 'N/A'}</td>
+            <td class="sale-info">${formattedDate}</td>
+            <td class="sale-info">${sale.customer_name || 'N/A'}</td>
+            <td class="sale-info">${sale.item_purchased || 'N/A'}</td>
+            <td class="sale-info">${sale.total_value ? `${sale.total_value} MMK` : 'N/A'}</td>
+            <td class="sale-info">${sale.payment_status || 'N/A'}</td>
             <td><button class="view-details" data-id="${sale.order_id}">View</button></td>
         `;
         tableBody.appendChild(tr);
