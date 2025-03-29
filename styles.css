@@ -556,3 +556,17 @@ footer {
         width: 100%;
     }
 }
+
+.inventory-details p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0;
+}
+.inventory-details span:first-child {
+    flex: 1;
+    text-align: left;
+}
+.inventory-details span:last-child {
+    text-align: right;
+}
