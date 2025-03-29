@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Funny Zone Sale Management</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 </head>
 <body>
-    <header>
+    <header class="glass-header">
         <div class="container">
             <h1><i class="fas fa-laugh-beam"></i> Funny Zone Sale Management</h1>
             <a href="https://docs.google.com/spreadsheets/d/1GzdaBH2Hq7LVx9svDkdlMHr01eODjy9haFMTJFIqgI4/edit#gid=1591950000" target="_blank" class="sheets-link">
@@ -19,106 +19,107 @@
         </div>
     </header>
 
-    <main class="container">
-        <section class="dashboard">
-            <div class="dashboard-grid">
-                <div class="dashboard-card summary-card">
-                    <h3>Monthly Summary</h3>
-                    <div class="history-controls">
-                        <select id="customMonth"></select>
-                        <select id="customYear"></select>
-                        <button id="viewHistoryBtn" class="btn-primary btn-view">View</button>
-                    </div>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <p class="stat-label">Total Sales</p>
-                            <p class="stat-value" id="totalSales">0 MMK</p>
-                            <p class="stat-change positive" id="salesChange"><i class="fas fa-arrow-up"></i> 0%</p>
+    <main class="main-content">
+        <div class="container">
+            <section class="dashboard glass-section">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card glass-card summary-card">
+                        <div class="card-header">
+                            <h3>Monthly Summary</h3>
+                            <div class="history-controls">
+                                <select id="customMonth" class="glass-select"></select>
+                                <select id="customYear" class="glass-select"></select>
+                                <button id="viewHistoryBtn" class="glass-btn btn-primary">View</button>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <p class="stat-label">Total Profit</p>
-                            <p class="stat-value" id="totalProfit">0 MMK</p>
-                            <p class="stat-change positive" id="profitChange"><i class="fas fa-arrow-up"></i> 0%</p>
-                        </div>
-                        <div class="stat-item">
-                            <p class="stat-label">Orders</p>
-                            <p class="stat-value" id="orderCount">0</p>
-                        </div>
-                        <div class="stat-item">
-                            <p class="stat-label">Items Sold</p>
-                            <p class="stat-value" id="itemsSold">0</p>
-                        </div>
-                    </div>
-                    <a href="https://docs.google.com/spreadsheets/d/1GzdaBH2Hq7LVx9svDkdlMHr01eODjy9haFMTJFIqgI4/edit#gid=1591950000" target="_blank" class="sheets-link">
-                        <i class="fas fa-table"></i>
-                    </a>
-                </div>
-            </div>
-        </section>
-        
-        <section class="inventory-status">
-            <h2>Inventory Status</h2>
-            <div class="inventory-cards" id="inventoryCards">
-                <!-- Inventory cards will be populated here -->
-            </div>
-        </section>
-
-        <section class="search-section">
-            <h2>Search Orders</h2>
-            <div class="search-controls">
-                <div class="search-row">
-                    <div class="search-field">
-                        <label for="orderIdSearch">Order ID</label>
-                        <input type="text" id="orderIdSearch" placeholder="Enter Order ID">
-                    </div>
-                    <div class="search-field">
-                        <label for="customerSearch">Customer Name</label>
-                        <input type="text" id="customerSearch" placeholder="Enter Customer Name">
+                        <div class="stat-grid">
+                            <div class="stat-item glass-stat">
+                                <p class="stat-label">Total Sales</p>
+                                <p class="stat-value" id="totalSales">0 MMK</p>
+                                <p class="stat-change positive" id="salesChange"><i class="fas fa-arrow-up"></i> 0%</p>
+                            </div>
+                            <div class="stat-item glass-stat">
+                                <p class="stat-label">Total Profit</p>
+                                <p class="stat-value" id="totalProfit">0 MMK</p>
+                                <p class="stat-change positive" id="profitChange"><i class="fas fa-arrow-up"></i> 0%</p>
+                            </div>
+                            <div class="stat-item glass-stat">
+                                <p class="stat-label">Orders</p>
+                                <p class="stat-value" id="orderCount">0</p>
+                            </div>
+                            <div class="stat-item glass-stat">
+                                <p class="stat-label">Items Sold</p>
+                                <p class="stat-value" id="itemsSold">0</p>
+                            </div>
+                        
                     </div>
                 </div>
-                <div class="search-row">
-                    <div class="search-field">
-                        <label for="startDate">Start Date</label>
-                        <input type="date" id="startDate">
-                    </div>
-                    <div class="search-field">
-                        <label for="endDate">End Date</label>
-                        <input type="date" id="endDate">
-                    </div>
-                    <button id="searchBtn" class="btn-primary">Search</button>
-                    <button id="resetBtn" class="btn-secondary">Reset</button>
-                </div>
-            </div>
+            </section>
             
-            <div class="results-container">
-                <div class="loader" id="loader">
-                    <div class="spinner"></div>
+            <section class="inventory-status glass-section">
+                <h2>Inventory Status</h2>
+                <div class="inventory-cards" id="inventoryCards">
+                    <!-- Inventory cards will be populated here -->
                 </div>
-                <div id="noResults" class="hidden">No matching orders found</div>
-                <div class="table-container">
-                    <table id="resultsTable" class="results-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Results will appear here -->
-                        </tbody>
-                    </table>
+            </section>
+
+            <section class="search-section glass-section">
+                <h2>Search Orders</h2>
+                <div class="search-controls">
+                    <div class="search-row">
+                        <div class="search-field">
+                            <label for="orderIdSearch">Order ID</label>
+                            <input type="text" id="orderIdSearch" placeholder="Enter Order ID" class="glass-input">
+                        </div>
+                        <div class="search-field">
+                            <label for="customerSearch">Customer Name</label>
+                            <input type="text" id="customerSearch" placeholder="Enter Customer Name" class="glass-input">
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class="search-field">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" class="glass-input">
+                        </div>
+                        <div class="search-field">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" class="glass-input">
+                        </div>
+                        <button id="searchBtn" class="glass-btn btn-primary">Search</button>
+                        <button id="resetBtn" class="glass-btn btn-secondary">Reset</button>
+                    </div>
                 </div>
-            </div>
-        </section>
+                
+                <div class="results-container glass-table">
+                    <div class="loader" id="loader">
+                        <div class="spinner"></div>
+                    </div>
+                    <div id="noResults" class="hidden">No matching orders found</div>
+                    <div class="table-container">
+                        <table id="resultsTable" class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Results will appear here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 
     <div id="orderDetailsModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content glass-modal">
             <span class="close">×</span>
             <h2>Order Details</h2>
             <div id="orderDetails">
@@ -127,7 +128,7 @@
         </div>
     </div>
 
-    <footer>
+    <footer class="glass-footer">
         <div class="container">
             <p>© 2025 Funny Zone POS System. All rights reserved.</p>
         </div>
