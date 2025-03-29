@@ -132,15 +132,15 @@ function updateDashboardSummary() {
     // Calculate Total Sales
     const totalSalesValue = selectedSales.reduce((total, sale) => total + (parseFloat(sale.total_value) || 0), 0);
 
-    // Calculate Total Profit as (Selling Price - Purchase Price) × Quantity Sold for each order
+    // Calculate Total Profit as (Selling Price - Purchased Price) × Quantity Sold for each order
     const totalProfit = selectedSales.reduce((total, sale) => {
         const sellingPrice = parseFloat(sale.selling_price) || 0;
         const quantitySold = parseInt(sale.quantity_sold) || 0;
-        // Look up the purchase price from the Inventory sheet by matching the item name
+        // Look up the purchased price from the Inventory sheet by matching the item name
         const itemName = sale.item_purchased || '';
         const inventoryItem = inventoryData.find(item => item.item_name === itemName);
-        const purchasePrice = inventoryItem ? (parseFloat(inventoryItem.purchase_price) || 0) : 0;
-        const profitPerOrder = (sellingPrice - purchasePrice) * quantitySold;
+        const purchasedPrice = inventoryItem ? (parseFloat(inventoryItem.purchased_price) || 0) : 0;
+        const profitPerOrder = (sellingPrice - purchasedPrice) * quantitySold;
         return total + profitPerOrder;
     }, 0);
 
