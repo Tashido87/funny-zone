@@ -80,6 +80,7 @@ async function fetchSheetData() {
     inventoryData = await fetchData(INVENTORY_SHEET);
     salesData = await fetchData(SALES_SHEET);
     console.log('Sample sales data:', salesData[0]); // Debug: Log a sample of sales data
+    console.log('Sample inventory data:', inventoryData[0]); // Debug: Log a sample of inventory data
 }
 
 // Setup history controls
@@ -111,7 +112,7 @@ function setupHistoryControls() {
 
 // Update dashboard summary stats
 function updateDashboardSummary() {
-    if (!salesData.length) {
+    if (!salesData.length || !inventoryData.length) {
         resetDashboardSummary();
         return;
     }
@@ -123,14 +124,31 @@ function updateDashboardSummary() {
     const selectedSales = salesData.filter(sale => {
         const saleDate = new Date(sale.order_date);
         const isMatchingDate = saleDate.getMonth() === selectedMonth && saleDate.getFullYear() === selectedYear;
-        // Check if the remarks field contains "Cancel" or "Return" (case-insensitive)
         const remarks = (sale.remarks || '').toLowerCase();
         const isNotCanceledOrReturned = !remarks.includes('cancel') && !remarks.includes('return');
         return isMatchingDate && isNotCanceledOrReturned;
     });
 
+    // Calculate Total Sales
     const totalSalesValue = selectedSales.reduce((total, sale) => total + (parseFloat(sale.total_value) || 0), 0);
-    const totalProfit = totalSalesValue * 0.3; // Assuming 30% profit margin
+
+    // Calculate Total Profit as (Selling Price - Purchase Price) × Quantity Sold for each order
+    const totalProfit = selectedSales.reduce((total, sale) => {
+        const sellingPrice = parseFloat(sale.selling_price) || 0;
+        const quantitySold = parseInt(sale.quantity_sold) || 0;
+        // Look up the purchase price from the Inventory sheet by matching the item name
+        const itemName = sale.item_purchased || '';
+        const inventoryItem = inventoryData.find(item => item.item_name === itemName);
+        const purchasePrice = inventoryItem ? (parseFloat(inventoryItem.purchase_price) || 0) : 0;
+        const profitPerOrder = (sellingPrice - purchasePrice) * quantitySold;
+        return total + profitPerOrder;
+    }, 0);
+
+    // Debug: Log the calculations
+    console.log('Selected Sales:', selectedSales);
+    console.log('Total Sales Value:', totalSalesValue);
+    console.log('Total Profit:', totalProfit);
+
     const orderCount = selectedSales.length;
     const itemsSold = selectedSales.reduce((total, sale) => total + (parseInt(sale.quantity_sold) || 0), 0);
 
@@ -331,7 +349,6 @@ function showOrderDetails(orderId) {
     const order = salesData.find(sale => sale.order_id === orderId);
     if (!order) return;
 
-    // Debug: Log the order object to inspect its fields
     console.log('Order details:', order);
 
     const formatDate = (date) => {
