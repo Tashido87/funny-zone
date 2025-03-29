@@ -198,7 +198,7 @@ function populateInventoryCards() {
                 <p><span>Purchase Price:</span> <span>${item.purchased_price || '0'} MMK</span></p>
                 <p><span>In Stock:</span> <span>${remaining}</span></p>
                 <p><span>Selling Price:</span> <span>${item.selling_price || '0'} MMK</span></p>
-                <p><span>Profit:</span> <span>${item.profit || '0'} MMK</span></p>
+                <p><span>Total Profit:</span> <span>${item.profit || '0'} MMK</span></p>
             </div>
             <div class="stock-status ${stockClass}">${stockText}</div>
         `;
