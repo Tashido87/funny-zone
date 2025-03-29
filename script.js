@@ -67,6 +67,7 @@ async function fetchSheetData() {
         const result = await response.json();
         if (!result.values || result.values.length <= 1) return [];
         const headers = result.values[0].map(h => h.toLowerCase().replace(/\s+/g, '_'));
+        console.log(`Headers for ${sheet}:`, headers); // Debug: Log the headers
         return result.values.slice(1).map(row => {
             const item = {};
             headers.forEach((header, index) => {
@@ -78,6 +79,7 @@ async function fetchSheetData() {
 
     inventoryData = await fetchData(INVENTORY_SHEET);
     salesData = await fetchData(SALES_SHEET);
+    console.log('Sample sales data:', salesData[0]); // Debug: Log a sample of sales data
 }
 
 // Setup history controls
@@ -117,9 +119,14 @@ function updateDashboardSummary() {
     const selectedMonth = parseInt(DOM.customMonth.value);
     const selectedYear = parseInt(DOM.customYear.value);
 
+    // Filter sales for the selected month/year and exclude canceled/returned orders
     const selectedSales = salesData.filter(sale => {
         const saleDate = new Date(sale.order_date);
-        return saleDate.getMonth() === selectedMonth && saleDate.getFullYear() === selectedYear;
+        const isMatchingDate = saleDate.getMonth() === selectedMonth && saleDate.getFullYear() === selectedYear;
+        // Check if the remarks field contains "Cancel" or "Return" (case-insensitive)
+        const remarks = (sale.remarks || '').toLowerCase();
+        const isNotCanceledOrReturned = !remarks.includes('cancel') && !remarks.includes('return');
+        return isMatchingDate && isNotCanceledOrReturned;
     });
 
     const totalSalesValue = selectedSales.reduce((total, sale) => total + (parseFloat(sale.total_value) || 0), 0);
@@ -127,6 +134,7 @@ function updateDashboardSummary() {
     const orderCount = selectedSales.length;
     const itemsSold = selectedSales.reduce((total, sale) => total + (parseInt(sale.quantity_sold) || 0), 0);
 
+    // Calculate previous period sales (for percentage change), also excluding canceled/returned orders
     let prevMonth = selectedMonth - 1;
     let prevYear = selectedYear;
     if (prevMonth < 0) {
@@ -136,7 +144,10 @@ function updateDashboardSummary() {
 
     const prevPeriodSales = salesData.filter(sale => {
         const saleDate = new Date(sale.order_date);
-        return saleDate.getMonth() === prevMonth && saleDate.getFullYear() === prevYear;
+        const isMatchingDate = saleDate.getMonth() === prevMonth && saleDate.getFullYear() === prevYear;
+        const remarks = (sale.remarks || '').toLowerCase();
+        const isNotCanceledOrReturned = !remarks.includes('cancel') && !remarks.includes('return');
+        return isMatchingDate && isNotCanceledOrReturned;
     });
 
     const prevPeriodSalesValue = prevPeriodSales.reduce((total, sale) => total + (parseFloat(sale.total_value) || 0), 0);
@@ -198,7 +209,7 @@ function populateInventoryCards() {
                 <p><span>Purchase Price:</span> <span>${item.purchased_price || '0'} MMK</span></p>
                 <p><span>In Stock:</span> <span>${remaining}</span></p>
                 <p><span>Selling Price:</span> <span>${item.selling_price || '0'} MMK</span></p>
-                <p><span>Total Profit:</span> <span>${item.profit || '0'} MMK</span></p>
+                <p><span>Profit:</span> <span>${item.profit || '0'} MMK</span></p>
             </div>
             <div class="stock-status ${stockClass}">${stockText}</div>
         `;
@@ -319,6 +330,9 @@ function displaySearchResults(results) {
 function showOrderDetails(orderId) {
     const order = salesData.find(sale => sale.order_id === orderId);
     if (!order) return;
+
+    // Debug: Log the order object to inspect its fields
+    console.log('Order details:', order);
 
     const formatDate = (date) => {
         if (!date) return 'N/A';
