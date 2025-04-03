@@ -96,18 +96,17 @@ function setupHistoryControls() {
         DOM.customMonth.appendChild(option);
     });
 
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year >= currentYear - 5; year--) {
-        const option = document.createElement('option');
-        option.value = year;
-        option.textContent = year;
-        DOM.customYear.appendChild(option);
-    }
+    // Modified: Only include the year 2025
+    const year = 2025;
+    const option = document.createElement('option');
+    option.value = year;
+    option.textContent = year;
+    DOM.customYear.appendChild(option);
 
     // Set default to current month/year
     const today = new Date();
     DOM.customMonth.value = today.getMonth();
-    DOM.customYear.value = today.getFullYear();
+    DOM.customYear.value = year; // Set to 2025
 }
 
 // Update dashboard summary stats
@@ -136,18 +135,12 @@ function updateDashboardSummary() {
     const totalProfit = selectedSales.reduce((total, sale) => {
         const sellingPrice = parseFloat(sale.selling_price) || 0;
         const quantitySold = parseInt(sale.quantity_sold) || 0;
-        // Look up the purchased price from the Inventory sheet by matching the item name
         const itemName = sale.item_purchased || '';
         const inventoryItem = inventoryData.find(item => item.item_name === itemName);
         const purchasedPrice = inventoryItem ? (parseFloat(inventoryItem.purchased_price) || 0) : 0;
         const profitPerOrder = (sellingPrice - purchasedPrice) * quantitySold;
         return total + profitPerOrder;
     }, 0);
-
-    // Debug: Log the calculations
-    console.log('Selected Sales:', selectedSales);
-    console.log('Total Sales Value:', totalSalesValue);
-    console.log('Total Profit:', totalProfit);
 
     const orderCount = selectedSales.length;
     const itemsSold = selectedSales.reduce((total, sale) => total + (parseInt(sale.quantity_sold) || 0), 0);
@@ -252,16 +245,16 @@ function setupEventListeners() {
     // Add Enter key listener for customer name search
     document.getElementById('customerSearch').addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent any default form submission behavior
-            handleSearch(); // Trigger the search function
+            event.preventDefault();
+            handleSearch();
         }
     });
 
     // Add Enter key listener for order ID search
     document.getElementById('orderIdSearch').addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent any default form submission behavior
-            handleSearch(); // Trigger the search function
+            event.preventDefault();
+            handleSearch();
         }
     });
 }
@@ -274,8 +267,8 @@ function handleSearch() {
 
     const orderId = document.getElementById('orderIdSearch').value.trim().toLowerCase();
     const customerName = document.getElementById('customerSearch').value.trim().toLowerCase();
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
+    const startDateStr = document.getElementById('startDate').value.trim();
+    const endDateStr = document.getElementById('endDate').value.trim();
 
     let filteredResults = [...salesData];
 
@@ -291,78 +284,160 @@ function handleSearch() {
         );
     }
 
-    if (startDate) {
-        const start = new Date(startDate);
-        filteredResults = filteredResults.filter(sale => {
-            if (!sale.order_date) return false;
-            return new Date(sale.order_date) >= start;
-        });
+    // Parse DD-MM-YYYY to Date objects
+    const parseDate = (dateStr) => {
+        if (!dateStr) return null;
+        const [day, month, year] = dateStr.split('-');
+        if (!day || !month || !year) return null; // Basic validation
+        return new Date(year, month - 1, day); // month - 1 because JS months are 0-based
+    };
+
+    if (startDateStr) {
+        const start = parseDate(startDateStr);
+        if (start) {
+            filteredResults = filteredResults.filter(sale => {
+                if (!sale.order_date) return false;
+                return new Date(sale.order_date) >= start;
+            });
+        }
     }
 
-    if (endDate) {
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59);
-        filteredResults = filteredResults.filter(sale => {
-            if (!sale.order_date) return false;
-            return new Date(sale.order_date) <= end;
-        });
+    if (endDateStr) {
+        const end = parseDate(endDateStr);
+        if (end) {
+            end.setHours(23, 59, 59); // Include full end day
+            filteredResults = filteredResults.filter(sale => {
+                if (!sale.order_date) return false;
+                return new Date(sale.order_date) <= end;
+            });
+        }
     }
 
     displaySearchResults(filteredResults);
 }
 
-// Display search results
+// Display search results with pagination
 function displaySearchResults(results) {
     const tableBody = DOM.resultsTable.querySelector('tbody');
-    tableBody.innerHTML = '';
+    const paginationContainer = document.getElementById('pagination');
+    tableBody.innerHTML = ''; // Clear only the tbody
+    paginationContainer.innerHTML = '';
 
     if (!results.length) {
         hideLoader();
         DOM.noResults.classList.remove('hidden');
         DOM.resultsTable.classList.add('hidden');
+        paginationContainer.classList.add('hidden');
         return;
     }
 
     DOM.noResults.classList.add('hidden');
     DOM.resultsTable.classList.remove('hidden');
+    paginationContainer.classList.remove('hidden');
 
+    // Sort results by date (newest first)
     results.sort((a, b) => {
         if (!a.order_date) return 1;
         if (!b.order_date) return -1;
         return new Date(b.order_date) - new Date(a.order_date);
     });
 
-    results.forEach(sale => {
-        const tr = document.createElement('tr');
-        const formattedDate = sale.order_date
-            ? new Date(sale.order_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-            : 'N/A';
+    // Pagination variables
+    const rowsPerPage = 10;
+    const totalRows = results.length;
+    const totalPages = Math.ceil(totalRows / rowsPerPage);
+    let currentPage = 1;
 
-        // Check if Remarks contains "Cancel" or "Return" (case-insensitive)
-        const remarks = (sale.remarks || '').toLowerCase();
-        const isCancelledOrReturned = remarks.includes('cancel') || remarks.includes('return');
-        if (isCancelledOrReturned) {
-            tr.classList.add('cancelled-row'); // Add class for greyed-out styling
+    // Function to render rows for the current page
+    function renderPage(page) {
+        tableBody.innerHTML = ''; // Clear only the tbody content
+        const startIndex = (page - 1) * rowsPerPage;
+        const endIndex = Math.min(startIndex + rowsPerPage, totalRows);
+
+        for (let i = startIndex; i < endIndex; i++) {
+            const sale = results[i];
+            const tr = document.createElement('tr');
+            const formattedDate = sale.order_date
+                ? new Date(sale.order_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                : 'N/A';
+
+            // Check if Remarks contains "Cancel" or "Return"
+            const remarks = (sale.remarks || '').toLowerCase();
+            const isCancelledOrReturned = remarks.includes('cancel') || remarks.includes('return');
+            if (isCancelledOrReturned) {
+                tr.classList.add('cancelled-row');
+            }
+
+            tr.innerHTML = `
+                <td class="sale-info">${sale.order_id || 'N/A'}</td>
+                <td class="sale-info">${formattedDate}</td>
+                <td class="sale-info">${sale.customer_name || 'N/A'}</td>
+                <td class="sale-info">${sale.item_purchased || 'N/A'}</td>
+                <td class="sale-info">${sale.total_value ? `${sale.total_value} MMK` : 'N/A'}</td>
+                <td class="sale-info">${sale.payment_status || 'N/A'}</td>
+                <td><button class="view-details" data-id="${sale.order_id}">View</button></td>
+            `;
+            tableBody.appendChild(tr);
         }
 
-        tr.innerHTML = `
-            <td class="sale-info">${sale.order_id || 'N/A'}</td>
-            <td class="sale-info">${formattedDate}</td>
-            <td class="sale-info">${sale.customer_name || 'N/A'}</td>
-            <td class="sale-info">${sale.item_purchased || 'N/A'}</td>
-            <td class="sale-info">${sale.total_value ? `${sale.total_value} MMK` : 'N/A'}</td>
-            <td class="sale-info">${sale.payment_status || 'N/A'}</td>
-            <td><button class="view-details" data-id="${sale.order_id}">View</button></td>
-        `;
-        tableBody.appendChild(tr);
-    });
-
-    document.querySelectorAll('.view-details').forEach(button => {
-        button.addEventListener('click', () => {
-            const orderId = button.getAttribute('data-id');
-            showOrderDetails(orderId);
+        // Add event listeners to "View" buttons
+        document.querySelectorAll('.view-details').forEach(button => {
+            button.addEventListener('click', () => {
+                const orderId = button.getAttribute('data-id');
+                showOrderDetails(orderId);
+            });
         });
-    });
+    }
+
+    // Function to render pagination controls
+    function renderPagination() {
+        paginationContainer.innerHTML = '';
+
+        // Previous arrow
+        const prevButton = document.createElement('button');
+        prevButton.innerHTML = '<i class="fas fa-arrow-left"></i>';
+        prevButton.className = 'pagination-btn';
+        prevButton.disabled = currentPage === 1;
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPage(currentPage);
+                renderPagination();
+            }
+        });
+        paginationContainer.appendChild(prevButton);
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.textContent = i;
+            pageButton.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+            pageButton.addEventListener('click', () => {
+                currentPage = i;
+                renderPage(currentPage);
+                renderPagination();
+            });
+            paginationContainer.appendChild(pageButton);
+        }
+
+        // Next arrow
+        const nextButton = document.createElement('button');
+        nextButton.innerHTML = '<i class="fas fa-arrow-right"></i>';
+        nextButton.className = 'pagination-btn';
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPage(currentPage);
+                renderPagination();
+            }
+        });
+        paginationContainer.appendChild(nextButton);
+    }
+
+    // Initial render
+    renderPage(currentPage);
+    renderPagination();
 
     hideLoader();
 }
@@ -371,8 +446,6 @@ function displaySearchResults(results) {
 function showOrderDetails(orderId) {
     const order = salesData.find(sale => sale.order_id === orderId);
     if (!order) return;
-
-    console.log('Order details:', order);
 
     const formatDate = (date) => {
         if (!date) return 'N/A';
@@ -436,12 +509,21 @@ function resetSearch() {
     DOM.resultsTable.querySelector('tbody').innerHTML = '';
     DOM.resultsTable.classList.add('hidden');
     DOM.noResults.classList.add('hidden');
+    document.getElementById('pagination').innerHTML = ''; // Clear pagination
 }
 
-// Set default date range (current month)
+// Set default date range (current month) in DD-MM-YYYY format
 function setDefaultDateRange() {
     const today = new Date();
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    document.getElementById('startDate').value = firstDayOfMonth.toISOString().split('T')[0];
-    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+    const formatDate = (date) => {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
+
+    document.getElementById('startDate').value = formatDate(firstDayOfMonth);
+    document.getElementById('endDate').value = formatDate(today);
 }
