@@ -12,7 +12,10 @@
 <body>
     <header class="glass-header">
         <div class="container">
-            <h1><i class="fas fa-laugh-beam"></i> Funny Zone Sale Management</h1>
+            <h1>
+                <img src="https://i.pinimg.com/736x/61/71/aa/6171aa554e2b906795cfff05f2714f72.jpg" alt="Funny Zone Logo" class="header-logo">
+                Funny Zone Sale Management
+            </h1>
             <a href="https://docs.google.com/spreadsheets/d/1GzdaBH2Hq7LVx9svDkdlMHr01eODjy9haFMTJFIqgI4/edit#gid=1591950000" target="_blank" class="sheets-link">
                 <i class="fas fa-table"></i>
             </a>
@@ -51,7 +54,7 @@
                                 <p class="stat-label">Items Sold</p>
                                 <p class="stat-value" id="itemsSold">0</p>
                             </div>
-                        
+                        </div>
                     </div>
                 </div>
             </section>
@@ -79,11 +82,11 @@
                     <div class="search-row">
                         <div class="search-field">
                             <label for="startDate">Start Date</label>
-                            <input type="date" id="startDate" class="glass-input">
+                            <input type="text" id="startDate" placeholder="DD-MM-YYYY" class="glass-input">
                         </div>
                         <div class="search-field">
                             <label for="endDate">End Date</label>
-                            <input type="date" id="endDate" class="glass-input">
+                            <input type="text" id="endDate" placeholder="DD-MM-YYYY" class="glass-input">
                         </div>
                         <button id="searchBtn" class="glass-btn btn-primary">Search</button>
                         <button id="resetBtn" class="glass-btn btn-secondary">Reset</button>
@@ -112,6 +115,9 @@
                                 <!-- Results will appear here -->
                             </tbody>
                         </table>
+                    </div>
+                    <div class="pagination" id="pagination">
+                        <!-- Pagination controls will be populated here -->
                     </div>
                 </div>
             </section>
