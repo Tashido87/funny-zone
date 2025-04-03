@@ -38,48 +38,69 @@ body {
 
 /* Glass Header */
 .glass-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--glass-border);
-    padding: 1rem 0;
-    z-index: 1000;
-    box-shadow: var(--shadow);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 1rem 0;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+  height: 60px; /* Explicitly set header height */
+  display: flex;
+  align-items: center;
 }
 
 .glass-header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 .glass-header h1 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-color);
+  font-size: 1.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+  margin: 0; /* Remove default margin for precise height control */
+}
+
+.header-logo {
+  width: 65px; /* Square size: header height minus padding (60px - 16px = 44px) */
+  height: 65px;
+  object-fit: cover; /* Ensures image fills square without distortion */
+  transition: all 0.3s ease;
+}
+
+.logo-link {
+  display: inline-block;
+}
+
+.logo-link:hover .header-logo {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sheets-link {
-    color: var(--accent-color);
-    font-size: 1.5rem;
-    transition: all 0.3s ease;
+  color: var(--accent-color);
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
 }
 
 .sheets-link:hover {
-    color: var(--primary-color);
-    transform: rotate(10deg) scale(1.2);
+  color: var(--primary-color);
+  transform: rotate(10deg) scale(1.2);
 }
 
 .sheets-link-bottom {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
 }
 
 /* Main Content */
@@ -430,6 +451,44 @@ body {
     background: var(--primary-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.pagination-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.pagination-btn.active {
+  background: var(--primary-color);
+  color: var(--text-color);
+  border-color: var(--primary-color);
+}
+
+.pagination-btn:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Modal */
