@@ -645,7 +645,7 @@ body {
     border-radius: 12px !important;
     font-family: 'Poppins', sans-serif !important;
     padding: 0.5rem !important;
-    width: 320px !important; /* Wider to ensure all days fit */
+    width: 340px !important; /* Increased to fit 7 days comfortably */
 }
 
 /* Fallback for browsers that don't support backdrop-filter */
@@ -675,10 +675,10 @@ body {
     background: transparent !important;
     border: none !important;
     transition: all 0.3s ease !important;
-    width: 36px !important; /* Adjusted for even spacing */
-    height: 36px !important;
-    line-height: 36px !important;
-    margin: 4px !important; /* Space between days */
+    width: 42px !important; /* Adjusted to fit 7 columns in 340px */
+    height: 42px !important;
+    line-height: 42px !important;
+    margin: 2px !important; /* Reduced margin to fit all days */
 }
 
 .flatpickr-day:not(.disabled):hover {
@@ -705,7 +705,7 @@ body {
 .flatpickr-day.disabled:hover {
     color: #888888 !important; /* Grey for disabled dates */
     background: rgba(136, 136, 136, 0.2) !important; /* Grey background */
-    opacity: 0.2 !important; /* Faded effect */
+    opacity: 0.4 !important; /* Faded effect */
     cursor: not-allowed !important;
     text-decoration: none !important;
     border: none !important;
@@ -756,4 +756,6 @@ body {
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important; /* Ensure it fits within calendar */
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important; /* Force 7 columns */
 }
