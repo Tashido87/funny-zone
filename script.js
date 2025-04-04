@@ -258,17 +258,17 @@ function setupEventListeners() {
         }
     });
 
-    // Define today as April 3, 2025, for consistency with the prompt
-    const today = new Date(2025, 3, 3); // April 3, 2025 (month is 0-based in JS, so 3 = April)
+    // Use the current system date dynamically
+    const today = new Date(); // Reflects the actual current date (e.g., April 12, 2025, if today is April 12)
 
     // Initialize Flatpickr for startDate
     const startDatePicker = flatpickr("#startDate", {
         dateFormat: "d-m-Y", // Matches DD-MM-YYYY format
-        maxDate: today,      // Explicitly set max date to April 3, 2025
+        maxDate: today,      // Max date is the current date
         defaultDate: document.getElementById('startDate').value || null, // Use existing default
         disable: [
             function(date) {
-                // Disable dates after today (April 3, 2025)
+                // Disable dates after today
                 return date > today;
             }
         ],
@@ -281,11 +281,11 @@ function setupEventListeners() {
     // Initialize Flatpickr for endDate
     const endDatePicker = flatpickr("#endDate", {
         dateFormat: "d-m-Y", // Matches DD-MM-YYYY format
-        maxDate: today,      // Explicitly set max date to April 3, 2025
+        maxDate: today,      // Max date is the current date
         defaultDate: document.getElementById('endDate').value || null, // Use existing default
         disable: [
             function(date) {
-                // Disable dates after today (April 3, 2025)
+                // Disable dates after today
                 return date > today;
             }
         ],
