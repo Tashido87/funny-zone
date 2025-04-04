@@ -257,6 +257,43 @@ function setupEventListeners() {
             handleSearch();
         }
     });
+
+    // Define today as April 3, 2025, for consistency with the prompt
+    const today = new Date(2025, 3, 3); // April 3, 2025 (month is 0-based in JS, so 3 = April)
+
+    // Initialize Flatpickr for startDate
+    const startDatePicker = flatpickr("#startDate", {
+        dateFormat: "d-m-Y", // Matches DD-MM-YYYY format
+        maxDate: today,      // Explicitly set max date to April 3, 2025
+        defaultDate: document.getElementById('startDate').value || null, // Use existing default
+        disable: [
+            function(date) {
+                // Disable dates after today (April 3, 2025)
+                return date > today;
+            }
+        ],
+        onChange: function(selectedDates, dateStr, instance) {
+            // Set minDate for endDate when startDate changes
+            endDatePicker.set('minDate', selectedDates[0]);
+        }
+    });
+
+    // Initialize Flatpickr for endDate
+    const endDatePicker = flatpickr("#endDate", {
+        dateFormat: "d-m-Y", // Matches DD-MM-YYYY format
+        maxDate: today,      // Explicitly set max date to April 3, 2025
+        defaultDate: document.getElementById('endDate').value || null, // Use existing default
+        disable: [
+            function(date) {
+                // Disable dates after today (April 3, 2025)
+                return date > today;
+            }
+        ],
+        onChange: function(selectedDates, dateStr, instance) {
+            // Set maxDate for startDate when endDate changes
+            startDatePicker.set('maxDate', selectedDates[0]);
+        }
+    });
 }
 
 // Handle search functionality
@@ -503,13 +540,19 @@ function showOrderDetails(orderId) {
 
 // Reset search form
 function resetSearch() {
+    // Clear input fields
     document.getElementById('orderIdSearch').value = '';
     document.getElementById('customerSearch').value = '';
     setDefaultDateRange();
-    DOM.resultsTable.querySelector('tbody').innerHTML = '';
-    DOM.resultsTable.classList.add('hidden');
-    DOM.noResults.classList.add('hidden');
-    document.getElementById('pagination').innerHTML = ''; // Clear pagination
+
+    // Completely reset and hide search results UI
+    const tableBody = DOM.resultsTable.querySelector('tbody');
+    const paginationContainer = document.getElementById('pagination');
+    tableBody.innerHTML = ''; // Clear table content
+    DOM.resultsTable.classList.add('hidden'); // Hide table
+    DOM.noResults.classList.add('hidden'); // Hide "No results" message
+    paginationContainer.innerHTML = ''; // Clear pagination content
+    paginationContainer.classList.add('hidden'); // Hide pagination
 }
 
 // Set default date range (current month) in DD-MM-YYYY format
@@ -519,11 +562,19 @@ function setDefaultDateRange() {
 
     const formatDate = (date) => {
         const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 because JS months are 0-based
         const year = date.getFullYear();
         return `${day}-${month}-${year}`;
     };
 
-    document.getElementById('startDate').value = formatDate(firstDayOfMonth);
-    document.getElementById('endDate').value = formatDate(today);
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    startDateInput.value = formatDate(firstDayOfMonth);
+    endDateInput.value = formatDate(today);
+
+    // Update Flatpickr instances with default values
+    if (startDateInput._flatpickr) startDateInput._flatpickr.setDate(startDateInput.value);
+    if (endDateInput._flatpickr) endDateInput._flatpickr.setDate(endDateInput.value);
+
+    hideLoader();
 }
