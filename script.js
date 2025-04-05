@@ -593,24 +593,22 @@ function setupNewSaleForm() {
     document.getElementById('discount').addEventListener('change', updateTotalValue);
 
     // Initialize Flatpickr for all date fields in the form
-    flatpickr(".new-sale-date-picker", {
-        dateFormat: "d-m-Y",
-        maxDate: "today",
-        onOpen: function(selectedDates, dateStr, instance) {
-            instance.calendarContainer.classList.add('new-sale-calendar');
-            instance.calendarContainer.style.fontSize = '12px';
-            instance.calendarContainer.style.width = '308px'; // Match CSS
-            // Position the calendar below the input
-            const input = instance.input;
-            const rect = input.getBoundingClientRect();
-            instance.calendarContainer.style.position = 'absolute';
-            instance.calendarContainer.style.top = (rect.bottom + window.scrollY) + 'px';
-            instance.calendarContainer.style.left = (rect.left + window.scrollX) + 'px';
-        },
-        onReady: function(selectedDates, dateStr, instance) {
-            instance.days.style.width = '308px'; // Ensure days container fits 7 days
-            instance.days.style.gridTemplateColumns = 'repeat(7, 1fr)'; // Force 7 columns
-        }
+    const datePickers = document.querySelectorAll('.new-sale-date-picker');
+    datePickers.forEach(picker => {
+        flatpickr(picker, {
+            dateFormat: "d-m-Y",
+            maxDate: "today",
+            position: "below", // Default Flatpickr positioning below the input
+            appendTo: document.body, // Append to body to avoid modal clipping
+            onOpen: function(selectedDates, dateStr, instance) {
+                console.log('Opening calendar for:', picker.id); // Debug
+                instance.calendarContainer.style.zIndex = '3000'; // Above modal
+            },
+            onReady: function(selectedDates, dateStr, instance) {
+                // Ensure no custom styling is applied
+                instance.calendarContainer.classList.remove('new-sale-calendar');
+            }
+        });
     });
 
     document.getElementById('newSaleForm').addEventListener('submit', async (e) => {
