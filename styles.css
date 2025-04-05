@@ -38,69 +38,71 @@ body {
 
 /* Glass Header */
 .glass-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--glass-border);
-  padding: 1rem 0;
-  z-index: 1000;
-  box-shadow: var(--shadow);
-  height: 60px; /* Explicitly set header height */
-  display: flex;
-  align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 1rem 0;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+    height: 60px;
+    display: flex;
+    align-items: center;
 }
 
 .glass-header .container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }
 
 .glass-header h1 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-color);
-  margin: 0; /* Remove default margin for precise height control */
+    font-size: 1.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-color);
+    margin: 0;
 }
 
 .header-logo {
-  width: 65px; /* Square size: header height minus padding (60px - 16px = 44px) */
-  height: 65px;
-  object-fit: cover; /* Ensures image fills square without distortion */
-  transition: all 0.3s ease;
-}
-
-.logo-link {
-  display: inline-block;
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+    transition: all 0.3s ease;
 }
 
 .logo-link:hover .header-logo {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .sheets-link {
-  color: var(--accent-color);
-  font-size: 1.5rem;
-  transition: all 0.3s ease;
+    color: var(--accent-color);
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
 }
 
 .sheets-link:hover {
-  color: var(--primary-color);
-  transform: rotate(10deg) scale(1.2);
+    color: var(--primary-color);
+    transform: rotate(10deg) scale(1.2);
 }
 
-.sheets-link-bottom {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.glass-header .glass-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
 }
 
 /* Main Content */
@@ -137,7 +139,6 @@ body {
     padding: 1.5rem;
     box-shadow: var(--shadow);
     transition: all 0.4s ease;
-    position: relative;
 }
 
 .glass-card:hover {
@@ -217,8 +218,8 @@ body {
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     font-size: 0.9rem;
-    color: var(--text-color); /* White text */
-    background: rgba(30, 41, 59, 0.8); /* Darker slate with slight transparency */
+    color: var(--text-color);
+    background: rgba(30, 41, 59, 0.8);
     backdrop-filter: blur(5px);
     transition: all 0.3s ease;
     cursor: pointer;
@@ -232,24 +233,22 @@ body {
 .glass-select:hover,
 .glass-select:focus {
     border-color: var(--primary-color);
-    background: rgba(30, 41, 59, 0.9); /* Slightly lighter on hover/focus */
+    background: rgba(30, 41, 59, 0.9);
     outline: none;
 }
 
-/* Styling the options (limited control, but this helps) */
 .glass-select option {
-    background: #1e293b; /* Dark slate background for options */
-    color: var(--text-color); /* White text */
+    background: #1e293b;
+    color: var(--text-color);
     font-family: 'Poppins', sans-serif;
-    padding: 0.5rem; /* Improves spacing in some browsers */
 }
 
 .glass-btn {
-    padding: 0.75rem 1.75rem; /* Restored original padding for size */
+    padding: 0.75rem 1.75rem;
     border: none;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 0.9rem; /* Matches select font size */
+    font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -412,7 +411,7 @@ body {
     font-weight: 600;
     position: sticky;
     top: 0;
-    color: var(--accent-color); /* #14b8a6 */
+    color: var(--accent-color);
 }
 
 .results-table tbody tr {
@@ -425,15 +424,15 @@ body {
 }
 
 .sale-info {
-    transition: color 0.3s ease; /* Smooth transition for color change */
+    transition: color 0.3s ease;
 }
 
 .cancelled-row .sale-info {
-    color: rgba(255, 255, 255, 0.5); /* Faded white for greyed-out effect */
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .cancelled-row:hover .sale-info {
-    color: rgba(255, 255, 255, 0.6); /* Slightly less faded on hover */
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .view-details {
@@ -456,40 +455,40 @@ body {
 
 /* Pagination */
 .pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }
 
 .pagination-btn {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  color: var(--text-color);
-  padding: 0.5rem 1rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .pagination-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 .pagination-btn.active {
-  background: var(--primary-color);
-  color: var(--text-color);
-  border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: var(--text-color);
+    border-color: var(--primary-color);
 }
 
 .pagination-btn:disabled {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.3);
-  cursor: not-allowed;
-  transform: none;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+    transform: none;
 }
 
 /* Modal */
@@ -502,7 +501,7 @@ body {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
-    overflow: auto;
+    overflow: hidden; /* Prevent body scroll */
 }
 
 .glass-modal {
@@ -514,8 +513,11 @@ body {
     border-radius: 16px;
     width: 90%;
     max-width: 900px;
+    max-height: 80vh; /* Limit height */
+    overflow-y: auto; /* Enable scrolling within modal */
     box-shadow: var(--shadow);
     animation: modalFadeIn 0.4s ease;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
 }
 
 @keyframes modalFadeIn {
@@ -536,14 +538,16 @@ body {
     transform: rotate(90deg);
 }
 
-#orderDetails {
+#orderDetails,
+#formContent {
     margin-top: 1.5rem;
 }
 
-#orderDetails h4 {
+#orderDetails h4,
+#formContent h2 {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--primary-color); /* Now uses #6895dd */
+    color: var(--primary-color);
     margin-bottom: 0.75rem;
 }
 
@@ -556,7 +560,7 @@ body {
 .order-info-group h4 {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--primary-color); /* Now uses #6895dd */
+    color: var(--primary-color);
     margin-bottom: 0.75rem;
 }
 
@@ -573,7 +577,7 @@ body {
 .order-items h4 {
     font-size: 1rem;
     font-weight: 600;
-    color: var(--primary-color); /* Now uses #6895dd */
+    color: var(--primary-color);
     margin-bottom: 0.75rem;
 }
 
@@ -590,7 +594,162 @@ body {
     padding: 1rem 0;
     font-weight: 600;
     border-top: 2px solid var(--primary-light);
-    color: var(--primary-color); /* Now uses #6895dd */
+    color: var(--primary-color);
+}
+
+/* Form Modal Content */
+.form-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden; /* Prevent body scroll */
+}
+
+.form-content {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    width: 90%;
+    max-width: 450px;
+    max-height: 80vh;
+    overflow-y: auto; /* Enable form scroll */
+    color: var(--text-color);
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+}
+
+.form-content h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+}
+
+.form-group, .form-row {
+    margin-bottom: 10px; /* Reduced margin for compactness */
+}
+
+.form-row {
+    display: flex;
+    gap: 10px; /* Reduced gap for compactness */
+    flex-wrap: wrap;
+}
+
+.form-col {
+    flex: 1;
+    min-width: 150px; /* Minimum width for compactness */
+}
+
+.form-group label, .form-col label {
+    display: block;
+    margin-bottom: 4px; /* Reduced margin */
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.form-group input, .form-group select, .form-group textarea,
+.form-col input, .form-col select {
+    width: 100%;
+    max-width: 200px; /* Smaller input size */
+    padding: 6px; /* Reduced padding */
+    border: 1px solid var(--glass-border);
+    border-radius: 8px; /* Slightly smaller radius */
+    font-size: 0.85rem; /* Smaller font */
+    color: var(--text-color);
+    background: var(--glass-bg);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus,
+.form-col input:focus, .form-col select:focus {
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+}
+
+.form-group textarea {
+    max-width: 100%;
+    resize: vertical;
+}
+
+/* Toggle Buttons for Add Inventory */
+.toggle-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.toggle-btn {
+    padding: 8px 15px;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: var(--glass-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn.active {
+    background: var(--primary-color);
+    color: var(--text-color);
+    border-color: var(--primary-color);
+}
+
+.toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px; /* Reduced margin */
+}
+
+.glass-btn {
+    padding: 8px 16px; /* Smaller button size */
+    border: none;
+    border-radius: 8px; /* Match input radius */
+    cursor: pointer;
+    font-size: 0.85rem; /* Smaller font */
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--text-color);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.btn-secondary {
+    background: var(--glass-bg);
+    color: var(--text-color);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.error {
+    color: var(--danger-color);
+    font-size: 0.8rem;
+    margin-top: 4px;
 }
 
 /* Footer */
@@ -633,25 +792,34 @@ body {
     .order-info {
         grid-template-columns: 1fr;
     }
+
+    .form-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-col {
+        min-width: 100%;
+    }
 }
 
 /* Flatpickr Styling */
 .flatpickr-calendar {
-    background: var(--glass-bg) !important;
-    backdrop-filter: blur(15px) !important;
+    background: rgba(255, 255, 255, 0.2) !important; /* Increased opacity */
+    backdrop-filter: blur(10px) !important;
     border: 1px solid var(--glass-border) !important;
     color: var(--text-color) !important;
     box-shadow: var(--shadow) !important;
     border-radius: 12px !important;
     font-family: 'Poppins', sans-serif !important;
     padding: 0.5rem !important;
-    width: 340px !important; /* Increased to fit 7 days comfortably */
+    width: 308px !important; /* Increased to fit 7 days (7 * 44px) */
+    font-size: 12px !important;
 }
 
-/* Fallback for browsers that don't support backdrop-filter */
-@supports not (backdrop-filter: blur(15px)) {
+@supports not (backdrop-filter: blur(10px)) {
     .flatpickr-calendar {
-        background: rgba(255, 255, 255, 0.15) !important;
+        background: rgba(255, 255, 255, 0.25) !important; /* Fallback with higher opacity */
     }
 }
 
@@ -663,11 +831,34 @@ body {
     color: var(--text-color) !important;
 }
 
+.flatpickr-weekdays {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100 !important;
+    padding: 0 4px !important;
+}
+
 .flatpickr-weekday {
     color: var(--text-color) !important;
     font-weight: 500 !important;
     opacity: 0.8 !important;
     background: transparent !important;
+    flex: 1 !important;
+    text-align: center !important;
+    font-size: 12px !important;
+}
+
+.flatpickr-days {
+    width: 100 !important;
+}
+
+.dayContainer {
+    width: 308px !important; /* Match calendar width */
+    min-width: 308px !important;
+    max-width: 308px !important;
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important; /* Enforce 7 columns */
+    padding: 0 !important;
 }
 
 .flatpickr-day {
@@ -675,15 +866,17 @@ body {
     background: transparent !important;
     border: none !important;
     transition: all 0.3s ease !important;
-    width: 42px !important; /* Adjusted to fit 7 columns in 340px */
-    height: 42px !important;
-    line-height: 42px !important;
-    margin: 2px !important; /* Reduced margin to fit all days */
+    width: 40px !important; /* Adjusted for 7 days in 308px */
+    height: 40px !important;
+    line-height: 40px !important;
+    margin: 2px !important;
+    box-sizing: border-box !important;
+    max-width: 40px !important; /* Prevent overflow */
 }
 
 .flatpickr-day:not(.disabled):hover {
     background: rgba(255, 255, 255, 0.2) !important;
-    border-radius: 8px !important;
+    border-radius: 6px !important;
 }
 
 .flatpickr-day.selected,
@@ -703,9 +896,9 @@ body {
 
 .flatpickr-day.disabled,
 .flatpickr-day.disabled:hover {
-    color: #888888 !important; /* Grey for disabled dates */
-    background: rgba(136, 136, 136, 0.2) !important; /* Grey background */
-    opacity: 0.4 !important; /* Faded effect */
+    color: #888888 !important;
+    background: rgba(136, 136, 136, 0.2) !important;
+    opacity: 0.4 !important;
     cursor: not-allowed !important;
     text-decoration: none !important;
     border: none !important;
@@ -752,10 +945,7 @@ body {
     border: none !important;
 }
 
-.dayContainer {
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important; /* Ensure it fits within calendar */
-    display: grid !important;
-    grid-template-columns: repeat(7, 1fr) !important; /* Force 7 columns */
+.new-sale-calendar {
+    position: fixed !important; /* Override Flatpickr default */
+    z-index: 2000 !important; /* Above modal */
 }
