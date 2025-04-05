@@ -8,9 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <!-- Added Flatpickr CSS and JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Google API Client Library -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <header class="glass-header">
@@ -19,9 +21,14 @@
                 <img src="https://i.pinimg.com/736x/61/71/aa/6171aa554e2b906795cfff05f2714f72.jpg" alt="Funny Zone Logo" class="header-logo">
                 Funny Zone Sale Management
             </h1>
-            <a href="https://docs.google.com/spreadsheets/d/1GzdaBH2Hq7LVx9svDkdlMHr01eODjy9haFMTJFIqgI4/edit#gid=1591950000" target="_blank" class="sheets-link">
-                <i class="fas fa-table"></i>
-            </a>
+            <div class="header-actions">
+                <a href="https://docs.google.com/spreadsheets/d/1GzdaBH2Hq7LVx9svDkdlMHr01eODjy9haFMTJFIqgI4/edit#gid=1591950000" target="_blank" class="sheets-link">
+                    <i class="fas fa-table"></i>
+                </a>
+                <button class="glass-btn btn-primary" onclick="showForm('addInventory')">Add Inventory</button>
+                <button class="glass-btn btn-primary" onclick="showForm('newSale')">New Sale</button>
+                <button class="glass-btn btn-primary" onclick="showForm('cancelReturn')">Cancel/Return</button>
+            </div>
         </div>
     </header>
 
@@ -127,6 +134,7 @@
         </div>
     </main>
 
+    <!-- Existing Order Details Modal -->
     <div id="orderDetailsModal" class="modal">
         <div class="modal-content glass-modal">
             <span class="close">×</span>
@@ -134,6 +142,14 @@
             <div id="orderDetails">
                 <!-- Order details will be populated here -->
             </div>
+        </div>
+    </div>
+
+    <!-- New Form Modal -->
+    <div id="formModal" class="modal">
+        <div class="modal-content glass-modal">
+            <span class="close" onclick="closeFormModal()">×</span>
+            <div id="formContent"></div>
         </div>
     </div>
 
