@@ -945,7 +945,21 @@ body {
     border: none !important;
 }
 
-.new-sale-calendar {
-    position: fixed !important; /* Override Flatpickr default */
-    z-index: 2000 !important; /* Above modal */
+.new-sale-date-picker {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--text-color) !important;
+    padding: 0.75rem !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+}
+
+.new-sale-date-picker:focus {
+    outline: none !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 8px rgba(104, 149, 221, 0.3) !important;
 }
