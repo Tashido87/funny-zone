@@ -1383,7 +1383,14 @@ function showReceiptForm() {
 
     // Group sales by customer (name, phone number, address)
     const customers = {};
-    salesData.forEach(sale => {
+    // First sort salesData by date in descending order (newest first)
+    const sortedSales = [...salesData].sort((a, b) => {
+        const dateA = new Date(a.order_date);
+        const dateB = new Date(b.order_date);
+        return dateB - dateA; // Descending order
+    });
+    
+    sortedSales.forEach(sale => {
         const remarks = (sale.remarks || '').toLowerCase();
         if (remarks.includes('cancel') || remarks.includes('return')) return; // Skip canceled/returned orders
 
@@ -1394,17 +1401,29 @@ function showReceiptForm() {
                 phone: sale.phone_no || 'No Phone',
                 address: sale.address || 'No Address',
                 orders: [],
+                latestOrderDate: new Date(sale.order_date) // Track the latest order date
             };
         }
         customers[customerKey].orders.push(sale);
+        // Update the latest order date if this sale is newer
+        const currentDate = new Date(sale.order_date);
+        if (currentDate > customers[customerKey].latestOrderDate) {
+            customers[customerKey].latestOrderDate = currentDate;
+        }
+    });
+
+    // Convert customers object to array and sort by latestOrderDate in descending order
+    const sortedCustomers = Object.values(customers).sort((a, b) => {
+        return b.latestOrderDate - a.latestOrderDate;
     });
 
     // Prepare customer options for Choices.js
-    const customerChoices = Object.keys(customers).map(key => ({
-        value: key,
-        label: `${customers[key].name} (${customers[key].phone}) - ${customers[key].address}`,
+    const customerChoices = sortedCustomers.map(customer => ({
+        value: `${customer.name}-${customer.phone}-${customer.address}`,
+        label: `${customer.name} (${customer.phone}) - ${customer.address}`
     }));
 
+    // Rest of the function remains the same...
     DOM.receiptContent.innerHTML = `
         <div class="form-group">
             <label for="receiptCustomer">Search Customer:</label>
