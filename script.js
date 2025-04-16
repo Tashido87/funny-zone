@@ -97,6 +97,36 @@ async function initializeGapiClient() {
     }
 }
 
+// Define a 12-color palette based on color theory (hue wheel, high saturation, adjusted brightness)
+const COLOR_PALETTE = [
+    'rgba(255, 99, 132, 0.8)',   // Red (0°)
+    'rgba(255, 159, 64, 0.8)',   // Orange (30°)
+    'rgba(255, 205, 86, 0.8)',   // Yellow (60°)
+    'rgba(75, 192, 192, 0.8)',   // Cyan (180°)
+    'rgba(54, 162, 235, 0.8)',   // Blue (210°)
+    'rgba(153, 102, 255, 0.8)',  // Purple (270°)
+    'rgba(255, 99, 255, 0.8)',   // Magenta (300°)
+    'rgba(50, 205, 50, 0.8)',    // Green (120°)
+    'rgba(255, 140, 0, 0.8)',    // Dark Orange (40°)
+    'rgba(173, 216, 230, 0.8)',  // Light Cyan (190°)
+    'rgba(139, 69, 19, 0.8)',    // Brown (20°)
+    'rgba(128, 128, 128, 0.8)',  // Gray (neutral)
+];
+
+// Global color map to ensure consistent colors across chart types
+const colorMap = {};
+
+// Function to get a color for an item, cycling or generating new colors if needed
+function getColorForItem(item, index, colorMap) {
+    if (colorMap[item]) {
+        return colorMap[item]; // Return existing color for consistency
+    }
+    // Assign a color from the palette, cycling if necessary
+    const color = COLOR_PALETTE[index % COLOR_PALETTE.length];
+    colorMap[item] = color; // Store in colorMap for consistency
+    return color;
+}
+
 // Initialize the dashboard
 document.addEventListener('DOMContentLoaded', async () => {
     showLoader();
@@ -432,6 +462,8 @@ function updateDashboard() {
 function updateInventoryChart(type) {
     let labels = [];
     let data = [];
+    let colors = [];
+
     if (type === 'category') {
         const categories = {};
         inventoryData.forEach(item => {
@@ -440,6 +472,8 @@ function updateInventoryChart(type) {
         });
         labels = Object.keys(categories);
         data = Object.values(categories);
+        // Assign colors for each category
+        colors = labels.map((label, index) => getColorForItem(label, index, colorMap));
     } else if (type === 'profit') {
         const items = {};
         salesData.forEach(sale => {
@@ -453,9 +487,18 @@ function updateInventoryChart(type) {
         });
         labels = Object.keys(items);
         data = Object.values(items);
+        // Assign colors for each item, ensuring consistency with category view if possible
+        colors = labels.map((label, index) => {
+            // Check if this item has a category assigned in inventoryData
+            const inventoryItem = inventoryData.find(i => i.item_name === label);
+            const category = inventoryItem && inventoryItem.category && inventoryItem.category.trim() !== '' ? inventoryItem.category : label;
+            return getColorForItem(category, index, colorMap);
+        });
     }
+
     inventoryChartInstance.data.labels = labels.length ? labels : ['No Data'];
     inventoryChartInstance.data.datasets[0].data = data.length ? data : [1];
+    inventoryChartInstance.data.datasets[0].backgroundColor = colors.length ? colors : ['rgba(128, 128, 128, 0.8)']; // Fallback color
     inventoryChartInstance.update();
 }
 
