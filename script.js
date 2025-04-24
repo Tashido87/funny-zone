@@ -65,6 +65,16 @@ const formatDate = (dateStr) => {
     return `${day}-${month}-${year}`;
 };
 
+// Sanitize customer input to ensure consistency (remove extra spaces and special characters)
+function sanitizeString(str) {
+    if (!str || typeof str !== 'string') return '';
+    return str
+        .replace(/[\0-\x1F\x7F-\x9F]/g, '') // Remove control characters
+        .replace(/[\n\r\t]/g, ' ') // Replace newlines and tabs with spaces
+        .replace(/[^\w\s.,/-]/g, '') // Remove any unwanted special characters (except common punctuation)
+        .trim(); // Remove leading/trailing spaces
+}
+
 // Google API Initialization
 function loadGapi() {
     gapi.load('client', initializeGapiClient);
