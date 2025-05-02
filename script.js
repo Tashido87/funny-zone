@@ -71,7 +71,9 @@ function sanitizeString(str) {
     return str
         .replace(/[\0-\x1F\x7F-\x9F]/g, '') // Remove control characters
         .replace(/[\n\r\t]/g, ' ') // Replace newlines and tabs with spaces
-        .replace(/[^\w\s.,/-]/g, '') // Remove any unwanted special characters (except common punctuation)
+        .replace(/\s+/g, ' ') // Collapse multiple spaces into a single space
+        .replace(/[\u200B-\u200F\uFEFF]/g, '') // Remove zero-width spaces and non-breaking spaces
+        .replace(/[^\u1000-\u109F\w\s.,\/-]/g, '') // Keep Burmese script, letters, numbers, spaces, and common punctuation
         .trim(); // Remove leading/trailing spaces
 }
 
@@ -956,54 +958,55 @@ function setupNewSaleForm() {
             });
 
             // Group sales by customer (name, phone number, address)
-            const customers = {};
-            recentSales.forEach(sale => {
-                // Skip entries with missing or invalid customer_name
-                if (!sale.customer_name || sale.customer_name.trim() === '') {
-                    console.warn('Skipping sale with missing customer_name:', sale);
-                    return;
-                }
+            // Group sales by customer (name, phone number, address)
+const customers = {};
+recentSales.forEach(sale => {
+    // Skip entries with missing or invalid customer_name
+    if (!sale.customer_name || sale.customer_name.trim() === '') {
+        console.warn('Skipping sale with missing customer_name:', sale);
+        return;
+    }
 
-                // Sanitize customer data
-                const sanitizedName = sanitizeString(sale.customer_name);
-                const sanitizedPhone = sanitizeString(sale.phone_no || 'No Phone');
-                const sanitizedAddress = sanitizeString(sale.address || 'No Address');
+    // Sanitize customer data
+    const sanitizedName = sanitizeString(sale.customer_name);
+    const sanitizedPhone = sanitizeString(sale.phone_no || 'No Phone');
+    const sanitizedAddress = sanitizeString(sale.address || 'No Address');
 
-                // Log raw and sanitized values for debugging
-                console.log('Raw customer_name:', sale.customer_name, 'Sanitized:', sanitizedName);
-                console.log('Raw address:', sale.address, 'Sanitized:', sanitizedAddress);
+    // Log raw and sanitized values for debugging
+    console.log('Raw customer_name:', sale.customer_name, 'Sanitized:', sanitizedName);
+    console.log('Raw address:', sale.address, 'Sanitized:', sanitizedAddress);
 
-                // Skip if sanitized name is empty
-                if (!sanitizedName) {
-                    console.warn('Skipping sale with empty sanitized customer_name:', sale);
-                    return;
-                }
+    // Skip if sanitized name is empty
+    if (!sanitizedName) {
+        console.warn('Skipping sale with empty sanitized customer_name:', sale);
+        return;
+    }
 
-                // Use underscore as a safer separator for customerKey
-                const customerKey = `${sanitizedName}_${sanitizedPhone}_${sanitizedAddress}`;
-                if (!customers[customerKey]) {
-                    customers[customerKey] = {
-                        name: sanitizedName,
-                        phone: sanitizedPhone,
-                        address: sanitizedAddress,
-                        contactMethod: sanitizeString(sale.contact_method) || 'Telegram',
-                        accountName: sanitizeString(sale.account_name) || '',
-                        order_date: sale.order_date,
-                    };
-                } else {
-                    // Update with the latest order date
-                    if (new Date(sale.order_date) > new Date(customers[customerKey].order_date)) {
-                        customers[customerKey] = {
-                            name: sanitizedName,
-                            phone: sanitizedPhone,
-                            address: sanitizedAddress,
-                            contactMethod: sanitizeString(sale.contact_method) || 'Telegram',
-                            accountName: sanitizeString(sale.account_name) || '',
-                            order_date: sale.order_date,
-                        };
-                    }
-                }
-            });
+    // Use underscore as a safer separator for customerKey
+    const customerKey = `${sanitizedName}_${sanitizedPhone}_${sanitizedAddress}`;
+    if (!customers[customerKey]) {
+        customers[customerKey] = {
+            name: sanitizedName,
+            phone: sanitizedPhone,
+            address: sanitizedAddress,
+            contactMethod: sanitizeString(sale.contact_method) || 'Telegram',
+            accountName: sanitizeString(sale.account_name) || '',
+            order_date: sale.order_date,
+        };
+    } else {
+        // Update with the latest order date
+        if (new Date(sale.order_date) > new Date(customers[customerKey].order_date)) {
+            customers[customerKey] = {
+                name: sanitizedName,
+                phone: sanitizedPhone,
+                address: sanitizedAddress,
+                contactMethod: sanitizeString(sale.contact_method) || 'Telegram',
+                accountName: sanitizeString(sale.account_name) || '',
+                order_date: sale.order_date,
+            };
+        }
+    }
+});
 
             // Prepare customer options for Choices.js
             // Show only the customer name in the suggestion box
@@ -1180,32 +1183,37 @@ function setupNewSaleForm() {
     document.getElementById('newSaleForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         let customerName, customerPhone, customerAddress;
+    
         if (customerMode === 'new') {
-            customerName = document.getElementById('customerName').value;
-            customerPhone = document.getElementById('phoneNo').value;
-            customerAddress = document.getElementById('address').value;
+            customerName = sanitizeString(document.getElementById('customerName').value);
+            customerPhone = sanitizeString(document.getElementById('phoneNo').value);
+            customerAddress = sanitizeString(document.getElementById('address').value);
         } else {
             const customerKey = customerInputInstance ? customerInputInstance.getValue(true) : document.getElementById('customerName').value;
             if (customerKey) {
                 const [name, phone, address] = customerKey.split('_'); // Use underscore as separator
-                customerName = name;
-                customerPhone = phone === 'No Phone' ? '' : phone;
-                customerAddress = address === 'No Address' ? '' : address;
+                customerName = sanitizeString(name);
+                customerPhone = sanitizeString(phone === 'No Phone' ? '' : phone);
+                customerAddress = sanitizeString(address === 'No Address' ? '' : address);
             } else {
                 customerName = '';
                 customerPhone = '';
                 customerAddress = '';
             }
         }
-
+    
+        // Sanitize other customer-related fields
+        const contactMethod = sanitizeString(document.getElementById('contactMethod').value);
+        const accountName = sanitizeString(document.getElementById('accountName').value);
+    
         const formData = {
             orderId: document.getElementById('orderId').value,
             orderDate: document.getElementById('orderDate').value,
             customerName: customerName,
-            phoneNo: customerPhone || document.getElementById('phoneNo').value,
-            address: customerAddress || document.getElementById('address').value,
-            contactMethod: document.getElementById('contactMethod').value,
-            accountName: document.getElementById('accountName').value,
+            phoneNo: customerPhone || sanitizeString(document.getElementById('phoneNo').value),
+            address: customerAddress || sanitizeString(document.getElementById('address').value),
+            contactMethod: contactMethod,
+            accountName: accountName,
             itemPurchased: document.getElementById('itemPurchased').value,
             sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
             quantitySold: parseInt(document.getElementById('quantitySold').value),
@@ -1219,7 +1227,7 @@ function setupNewSaleForm() {
             discount: parseFloat(document.getElementById('discount').value),
             remarks: document.getElementById('remarks').value,
         };
-
+    
         if (!formData.itemPurchased) {
             alert('Please select an item');
             return;
@@ -1228,13 +1236,13 @@ function setupNewSaleForm() {
             alert('Please enter or select a customer name');
             return;
         }
-
+    
         const convertDate = (dateStr) => {
             if (!dateStr) return '';
             const [day, month, year] = dateStr.split('-');
             return `${year}-${month}-${day}`;
         };
-
+    
         try {
             const newRow = [
                 formData.orderId,
@@ -1263,7 +1271,7 @@ function setupNewSaleForm() {
                 valueInputOption: 'USER_ENTERED',
                 values: [newRow],
             });
-
+    
             const itemIndex = inventoryData.findIndex(item => item.item_name === formData.itemPurchased);
             if (itemIndex !== -1) {
                 const rowIndex = itemIndex + 2;
@@ -1275,7 +1283,7 @@ function setupNewSaleForm() {
                     values: [[currentSold + formData.quantitySold]],
                 });
             }
-
+    
             alert('Sale recorded successfully!');
             fetchSheetData();
             closeFormModal();
