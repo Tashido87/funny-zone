@@ -166,11 +166,16 @@ async function fetchSheetData() {
             const result = response.result;
             if (!result.values || result.values.length <= 1) return [];
             const headers = result.values[0].map(h => h.toLowerCase().replace(/\s+/g, '_'));
+            console.log(`Headers for ${sheet}:`, headers); // Debug: Log headers
             return result.values.slice(1).map(row => {
                 const item = {};
                 headers.forEach((header, index) => {
                     item[header] = row[index] || '';
                 });
+                // Debug: Log discount specifically for Sale_Log
+                if (sheet === SALES_SHEET) {
+                    console.log(`Sale row - Order ID: ${item.order_id}, Discount: ${item.discount}`);
+                }
                 return item;
             });
         };
@@ -1180,117 +1185,116 @@ recentSales.forEach(sale => {
     });
 
     // Form submission
-    document.getElementById('newSaleForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        let customerName, customerPhone, customerAddress;
-    
-        if (customerMode === 'new') {
-            customerName = sanitizeString(document.getElementById('customerName').value);
-            customerPhone = sanitizeString(document.getElementById('phoneNo').value);
-            customerAddress = sanitizeString(document.getElementById('address').value);
+// Form submission
+document.getElementById('newSaleForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    let customerName, customerPhone, customerAddress;
+
+    if (customerMode === 'new') {
+        customerName = sanitizeString(document.getElementById('customerName').value);
+        customerPhone = sanitizeString(document.getElementById('phoneNo').value);
+        customerAddress = sanitizeString(document.getElementById('address').value);
+    } else {
+        const customerKey = customerInputInstance ? customerInputInstance.getValue(true) : document.getElementById('customerName').value;
+        if (customerKey) {
+            const [name, phone, address] = customerKey.split('_');
+            customerName = sanitizeString(name);
+            customerPhone = sanitizeString(phone === 'No Phone' ? '' : phone);
+            customerAddress = sanitizeString(address === 'No Address' ? '' : address);
         } else {
-            const customerKey = customerInputInstance ? customerInputInstance.getValue(true) : document.getElementById('customerName').value;
-            if (customerKey) {
-                const [name, phone, address] = customerKey.split('_'); // Use underscore as separator
-                customerName = sanitizeString(name);
-                customerPhone = sanitizeString(phone === 'No Phone' ? '' : phone);
-                customerAddress = sanitizeString(address === 'No Address' ? '' : address);
-            } else {
-                customerName = '';
-                customerPhone = '';
-                customerAddress = '';
-            }
+            customerName = '';
+            customerPhone = '';
+            customerAddress = '';
         }
-    
-        // Sanitize other customer-related fields
-        const contactMethod = sanitizeString(document.getElementById('contactMethod').value);
-        const accountName = sanitizeString(document.getElementById('accountName').value);
-    
-        const formData = {
-            orderId: document.getElementById('orderId').value,
-            orderDate: document.getElementById('orderDate').value,
-            customerName: customerName,
-            phoneNo: customerPhone || sanitizeString(document.getElementById('phoneNo').value),
-            address: customerAddress || sanitizeString(document.getElementById('address').value),
-            contactMethod: contactMethod,
-            accountName: accountName,
-            itemPurchased: document.getElementById('itemPurchased').value,
-            sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
-            quantitySold: parseInt(document.getElementById('quantitySold').value),
-            totalValue: parseFloat(document.getElementById('totalValue').value),
-            paymentStatus: document.getElementById('paymentStatus').value,
-            paymentMethod: document.getElementById('paymentMethod').value,
-            paymentDate: document.getElementById('paymentDate').value || '',
-            deliveryService: document.getElementById('deliveryService').value,
-            deliveryDate: document.getElementById('deliveryDate').value || '',
-            trackingNo: document.getElementById('trackingNo').value,
-            discount: parseFloat(document.getElementById('discount').value),
-            remarks: document.getElementById('remarks').value,
-        };
-    
-        if (!formData.itemPurchased) {
-            alert('Please select an item');
-            return;
-        }
-        if (!formData.customerName) {
-            alert('Please enter or select a customer name');
-            return;
-        }
-    
-        const convertDate = (dateStr) => {
-            if (!dateStr) return '';
-            const [day, month, year] = dateStr.split('-');
-            return `${year}-${month}-${day}`;
-        };
-    
-        try {
-            const newRow = [
-                formData.orderId,
-                convertDate(formData.orderDate),
-                formData.customerName,
-                formData.phoneNo,
-                formData.address,
-                formData.contactMethod,
-                formData.accountName,
-                formData.itemPurchased,
-                formData.sellingPrice,
-                formData.quantitySold,
-                formData.totalValue,
-                formData.paymentStatus,
-                formData.paymentMethod,
-                convertDate(formData.paymentDate),
-                formData.deliveryService,
-                convertDate(formData.deliveryDate),
-                formData.trackingNo,
-                formData.discount,
-                formData.remarks,
-            ];
-            await gapi.client.sheets.spreadsheets.values.append({
+    }
+
+    const formData = {
+        orderId: document.getElementById('orderId').value,
+        orderDate: document.getElementById('orderDate').value,
+        customerName: customerName,
+        phoneNo: customerPhone || sanitizeString(document.getElementById('phoneNo').value),
+        address: customerAddress || sanitizeString(document.getElementById('address').value),
+        contactMethod: sanitizeString(document.getElementById('contactMethod').value),
+        accountName: sanitizeString(document.getElementById('accountName').value),
+        itemPurchased: document.getElementById('itemPurchased').value,
+        sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
+        quantitySold: parseInt(document.getElementById('quantitySold').value),
+        totalValue: parseFloat(document.getElementById('totalValue').value),
+        paymentStatus: document.getElementById('paymentStatus').value,
+        paymentMethod: document.getElementById('paymentMethod').value,
+        paymentDate: document.getElementById('paymentDate').value || '',
+        deliveryService: document.getElementById('deliveryService').value,
+        deliveryDate: document.getElementById('deliveryDate').value || '',
+        trackingNo: document.getElementById('trackingNo').value,
+        discount: parseFloat(document.getElementById('discount').value) || 0,
+        remarks: document.getElementById('remarks').value,
+    };
+
+    if (!formData.itemPurchased) {
+        alert('Please select an item');
+        return;
+    }
+    if (!formData.customerName) {
+        alert('Please enter or select a customer name');
+        return;
+    }
+
+    const convertDate = (dateStr) => {
+        if (!dateStr) return '';
+        const [day, month, year] = dateStr.split('-');
+        return `${year}-${month}-${day}`;
+    };
+
+    try {
+        const newRow = [
+            formData.orderId,
+            convertDate(formData.orderDate),
+            formData.customerName,
+            formData.phoneNo,
+            formData.address,
+            formData.contactMethod,
+            formData.accountName,
+            formData.itemPurchased,
+            formData.sellingPrice,
+            formData.quantitySold,
+            formData.totalValue,
+            formData.paymentStatus,
+            formData.paymentMethod,
+            convertDate(formData.paymentDate),
+            formData.deliveryService,
+            convertDate(formData.deliveryDate),
+            formData.trackingNo,
+            formData.discount,
+            formData.remarks,
+        ];
+        console.log('New sale row:', newRow); // Debug: Log the row being sent
+        await gapi.client.sheets.spreadsheets.values.append({
+            spreadsheetId: SPREADSHEET_ID,
+            range: SALES_SHEET,
+            valueInputOption: 'USER_ENTERED',
+            values: [newRow],
+        });
+
+        const itemIndex = inventoryData.findIndex(item => item.item_name === formData.itemPurchased);
+        if (itemIndex !== -1) {
+            const rowIndex = itemIndex + 2;
+            const currentSold = parseInt(inventoryData[itemIndex].total_sold) || 0;
+            await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId: SPREADSHEET_ID,
-                range: SALES_SHEET,
+                range: `${INVENTORY_SHEET}!G${rowIndex}`,
                 valueInputOption: 'USER_ENTERED',
-                values: [newRow],
+                values: [[currentSold + formData.quantitySold]],
             });
-    
-            const itemIndex = inventoryData.findIndex(item => item.item_name === formData.itemPurchased);
-            if (itemIndex !== -1) {
-                const rowIndex = itemIndex + 2;
-                const currentSold = parseInt(inventoryData[itemIndex].total_sold) || 0;
-                await gapi.client.sheets.spreadsheets.values.update({
-                    spreadsheetId: SPREADSHEET_ID,
-                    range: `${INVENTORY_SHEET}!G${rowIndex}`,
-                    valueInputOption: 'USER_ENTERED',
-                    values: [[currentSold + formData.quantitySold]],
-                });
-            }
-    
-            alert('Sale recorded successfully!');
-            fetchSheetData();
-            closeFormModal();
-        } catch (error) {
-            alert('Failed to record sale: ' + error.message);
         }
-    });
+
+        alert('Sale recorded successfully!');
+        await fetchSheetData();
+        console.log('salesData after refresh:', salesData); // Debug: Log salesData
+        closeFormModal();
+    } catch (error) {
+        alert('Failed to record sale: ' + error.message);
+    }
+});
 }
 
 function generateNextOrderId() {
@@ -1568,6 +1572,7 @@ function updateReceiptOrders(customerKey) {
     `).join('');
 }
 
+//Generate Receipt
 function generateReceipt() {
     const customerKey = document.getElementById('receiptCustomer').value;
     const selectedOrders = Array.from(document.getElementById('receiptOrders').selectedOptions).map(option => option.value);
@@ -1619,8 +1624,10 @@ function generateReceipt() {
     let totalDiscount = 0;
     const itemsHtml = ordersToInclude.map(sale => {
         const itemTotal = (parseFloat(sale.selling_price) || 0) * (parseInt(sale.quantity_sold) || 0);
+        const discount = parseFloat(sale.discount) || 0;
+        console.log(`Sale: ${sale.order_id}, Discount: ${sale.discount}, Parsed: ${discount}`); // Debug: Log discount
         subtotal += itemTotal;
-        totalDiscount += parseFloat(sale.discount) || 0;
+        totalDiscount += discount;
         return `
             <tr>
                 <td class="text-gray-300">${sale.item_purchased || 'N/A'}</td>
@@ -1628,10 +1635,17 @@ function generateReceipt() {
                 <td class="text-gray-300">${formatNumberWithCommas(sale.selling_price || 0)} MMK</td>
                 <td class="text-gray-300">${formatNumberWithCommas(itemTotal)} MMK</td>
             </tr>
+            ${discount > 0 ? `
+            <tr>
+                <td class="text-gray-300" colspan="3">Discount (Order ${sale.order_id})</td>
+                <td class="text-gray-300">-${formatNumberWithCommas(discount)} MMK</td>
+            </tr>
+            ` : ''}
         `;
     }).join('');
 
-    const total = subtotal - totalDiscount;
+    const total = ordersToInclude.reduce((sum, sale) => sum + (parseFloat(sale.total_value) || 0), 0);
+    console.log(`Subtotal: ${subtotal}, Total Discount: ${totalDiscount}, Total: ${total}`); // Debug: Log totals
 
     // Generate receipt HTML
     const receiptHtml = `
@@ -1663,7 +1677,7 @@ function generateReceipt() {
             </table>
             <div class="receipt-totals">
                 <p class="text-gray-300"><strong>Subtotal:</strong> ${formatNumberWithCommas(subtotal)} MMK</p>
-                <p class="text-gray-300"><strong>Discount:</strong> ${formatNumberWithCommas(totalDiscount)} MMK</p>
+                <p class="text-gray-300"><strong>Total Discount:</strong> ${formatNumberWithCommas(totalDiscount)} MMK</p>
                 <p class="text-gray-300"><strong>Total:</strong> ${formatNumberWithCommas(total)} MMK</p>
             </div>
             <div class="receipt-footer text-center">
