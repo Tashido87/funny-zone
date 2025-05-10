@@ -362,6 +362,8 @@ function updateDashboard() {
 
     const selectedYear = parseInt(DOM.chartYear.value);
     const selectedMonth = parseInt(document.getElementById('chartMonth').value);
+    
+    // Filter sales for the selected month and year for Total Sales and Total Profit
     const selectedSales = salesData.filter(sale => {
         const saleDate = new Date(sale.order_date);
         const remarks = (sale.remarks || '').toLowerCase();
@@ -373,6 +375,7 @@ function updateDashboard() {
         );
     });
 
+    // Calculate Total Sales and Total Profit for the selected month
     const totalSalesValue = Math.floor(selectedSales.reduce((total, sale) => total + (parseFloat(sale.total_value) || 0), 0));
     const totalProfit = Math.floor(selectedSales.reduce((total, sale) => {
         const sellingPrice = parseFloat(sale.selling_price) || 0;
@@ -383,6 +386,7 @@ function updateDashboard() {
         return total + (sellingPrice - purchasedPrice) * quantitySold;
     }, 0));
 
+    // Calculate previous month's sales for comparison
     const prevMonthSales = salesData.filter(sale => {
         const saleDate = new Date(sale.order_date);
         const remarks = (sale.remarks || '').toLowerCase();
@@ -403,6 +407,7 @@ function updateDashboard() {
     const prevSalesValue = prevMonthSales.reduce((total, sale) => total + (parseFloat(sale.total_value) || 0), 0);
     const salesChange = prevSalesValue === 0 ? (totalSalesValue > 0 ? 100 : 0) : ((totalSalesValue - prevSalesValue) / prevSalesValue) * 100;
 
+    // Update Total Sales and Total Profit DOM elements
     DOM.totalSales.textContent = `${formatNumberWithCommas(totalSalesValue)} MMK`;
     DOM.totalProfit.textContent = `${formatNumberWithCommas(totalProfit)} MMK`;
     DOM.salesChange.innerHTML = `${salesChange >= 0 ? '↑' : '↓'} ${Math.abs(salesChange).toFixed(1)}%`;
@@ -414,7 +419,7 @@ function updateDashboard() {
     const totalItems = inventoryData.length;
     const lowStockItems = inventoryData.filter(item => {
         const remaining = parseInt(item.remaining) || 0;
-        return remaining > 0 && remaining <= 5; // Updated threshold for low stock
+        return remaining > 0 && remaining <= 5;
     }).length;
     const totalStock = inventoryData.reduce((sum, item) => sum + (parseInt(item.remaining) || 0), 0);
     const totalPurchased = inventoryData.reduce((sum, item) => sum + (parseInt(item.total_purchased) || 0), 0);
@@ -459,12 +464,23 @@ function updateDashboard() {
         DOM.topItemChange.textContent = '+0%';
     }
 
-    // Update Monthly Sales Chart
+    // Update Monthly Sales Chart for the entire year
     const monthlySales = Array(12).fill(0);
-    selectedSales.forEach(sale => {
-        const month = new Date(sale.order_date).getMonth();
+    const yearSales = salesData.filter(sale => {
+        const saleDate = new Date(sale.order_date);
+        const remarks = (sale.remarks || '').toLowerCase();
+        return (
+            saleDate.getFullYear() === selectedYear &&
+            !remarks.includes('cancel') &&
+            !remarks.includes('return')
+        );
+    });
+
+    yearSales.forEach(sale => {
+        const month = new Date(sale.order_date).getMonth(); // 0-11
         monthlySales[month] += parseFloat(sale.total_value) || 0;
     });
+
     monthlySalesChartInstance.data.datasets[0].data = monthlySales;
     monthlySalesChartInstance.update();
 
