@@ -1631,80 +1631,79 @@ function generateReceipt() {
     }
 
     // Calculate totals
-    let subtotal = 0;
-    let totalDiscount = 0;
-    const itemsHtml = ordersToInclude.map(sale => {
-        const itemTotal = (parseFloat(sale.selling_price) || 0) * (parseInt(sale.quantity_sold) || 0);
-        const discount = parseFloat(sale.discount) || 0;
-        console.log(`Sale: ${sale.order_id}, Discount: ${sale.discount}, Parsed: ${discount}`); // Debug: Log discount
-        subtotal += itemTotal;
-        totalDiscount += discount;
-        return `
-            <tr>
-                <td class="text-gray-300">${sale.item_purchased || 'N/A'}</td>
-                <td class="text-gray-300">${sale.quantity_sold || 0}</td>
-                <td class="text-gray-300">${formatNumberWithCommas(sale.selling_price || 0)} MMK</td>
-                <td class="text-gray-300">${formatNumberWithCommas(itemTotal)} MMK</td>
-            </tr>
-            ${discount > 0 ? `
-            <tr>
-                <td class="text-gray-300" colspan="3">Discount (Order ${sale.order_id})</td>
-                <td class="text-gray-300">-${formatNumberWithCommas(discount)} MMK</td>
-            </tr>
-            ` : ''}
-        `;
-    }).join('');
-
-    const total = ordersToInclude.reduce((sum, sale) => sum + (parseFloat(sale.total_value) || 0), 0);
-    console.log(`Subtotal: ${subtotal}, Total Discount: ${totalDiscount}, Total: ${total}`); // Debug: Log totals
-
-    // Generate receipt HTML
-    const receiptHtml = `
-        <div class="receipt" id="receiptContent" style="padding: 20px;">
-            <div class="receipt-header text-center mb-4">
-                <h3 class="text-xl font-bold text-blue-300">Funny Zone</h3>
-                <p class="text-gray-300">Yangon, Myanmar</p>
-                <p class="text-gray-300">Receipt #${ordersToInclude[0].order_id.split('_')[2]}_${new Date().getTime()}</p>
-                <p class="text-gray-300">${new Date().toLocaleString()}</p>
-            </div>
-            <div class="billing-info">
-                <h4 class="text-blue-300 font-semibold">Billing Information</h4>
-                <p class="text-gray-300"><strong>Customer:</strong> ${customer.name}</p>
-                <p class="text-gray-300"><strong>Phone:</strong> ${customer.phone}</p>
-                <p class="text-gray-300"><strong>Address:</strong> ${customer.address}</p>
-            </div>
-            <table class="receipt-table">
-                <thead>
-                    <tr>
-                        <th class="text-gray-300">Item</th>
-                        <th class="text-gray-300">Qty</th>
-                        <th class="text-gray-300">Price</th>
-                        <th class="text-gray-300">Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${itemsHtml}
-                </tbody>
-            </table>
-            <div class="receipt-totals">
-                <p class="text-gray-300"><strong>Subtotal:</strong> ${formatNumberWithCommas(subtotal)} MMK</p>
-                <p class="text-gray-300"><strong>Total Discount:</strong> ${formatNumberWithCommas(totalDiscount)} MMK</p>
-                <p class="text-gray-300"><strong>Total:</strong> ${formatNumberWithCommas(total)} MMK</p>
-            </div>
-            <div class="receipt-footer text-center">
-                <p class="text-gray-300">Thank you for your purchase!</p>
-                <p class="text-gray-300">Contact: 09787647412</p>
-                <p class="text-gray-300">TikTok: @funnyzone737</p>
-                <p class="text-gray-300">YouTube: @funnyzone-737</p>
-                <p class="text-gray-300">Viber/Telegram: 09787647412</p>
-            </div>
-        </div>
-        <div class="btn-container mt-4" id="receiptButtons">
-            <button type="button" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg" onclick="closeReceiptModal()">Close</button>
-            <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg" onclick="downloadReceipt()">Download as Image</button>
-        </div>
+let subtotal = 0;
+let totalDiscount = 0;
+const itemsHtml = ordersToInclude.map(sale => {
+    const itemTotal = (parseFloat(sale.selling_price) || 0) * (parseInt(sale.quantity_sold) || 0);
+    const discount = parseFloat(sale.discount) || 0;
+    subtotal += itemTotal;
+    totalDiscount += discount;
+    return `
+        <tr>
+            <td class="text-gray-300">${sale.item_purchased || 'N/A'}</td>
+            <td class="text-gray-300">${sale.quantity_sold || 0}</td>
+            <td class="text-gray-300">${formatNumberWithCommas(sale.selling_price || 0)} MMK</td>
+            <td class="text-gray-300">${formatNumberWithCommas(itemTotal)} MMK</td>
+        </tr>
+        ${discount > 0 ? `
+        <tr>
+            <td class="text-gray-300" colspan="3">Discount (Order ${sale.order_id})</td>
+            <td class="text-gray-300">-${formatNumberWithCommas(discount)} MMK</td>
+        </tr>
+        ` : ''}
     `;
-    DOM.receiptContent.innerHTML = receiptHtml;
+}).join('');
+
+// Calculate the final total by subtracting the total discount from the subtotal
+const total = subtotal - totalDiscount;
+
+// Generate receipt HTML
+const receiptHtml = `
+    <div class="receipt" id="receiptContent" style="padding: 20px;">
+        <div class="receipt-header text-center mb-4">
+            <h3 class="text-xl font-bold text-blue-300">Funny Zone</h3>
+            <p class="text-gray-300">Yangon, Myanmar</p>
+            <p class="text-gray-300">Receipt #${ordersToInclude[0].order_id.split('_')[2]}_${new Date().getTime()}</p>
+            <p class="text-gray-300">${new Date().toLocaleString()}</p>
+        </div>
+        <div class="billing-info">
+            <h4 class="text-blue-300 font-semibold">Billing Information</h4>
+            <p class="text-gray-300"><strong>Customer:</strong> ${customer.name}</p>
+            <p class="text-gray-300"><strong>Phone:</strong> ${customer.phone}</p>
+            <p class="text-gray-300"><strong>Address:</strong> ${customer.address}</p>
+        </div>
+        <table class="receipt-table">
+            <thead>
+                <tr>
+                    <th class="text-gray-300">Item</th>
+                    <th class="text-gray-300">Qty</th>
+                    <th class="text-gray-300">Price</th>
+                    <th class="text-gray-300">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${itemsHtml}
+            </tbody>
+        </table>
+        <div class="receipt-totals">
+            <p class="text-gray-300"><strong>Subtotal:</strong> ${formatNumberWithCommas(subtotal)} MMK</p>
+            <p class="text-gray-300"><strong>Total Discount:</strong> ${formatNumberWithCommas(totalDiscount)} MMK</p>
+            <p class="text-gray-300"><strong>Total:</strong> ${formatNumberWithCommas(total)} MMK</p>
+        </div>
+        <div class="receipt-footer text-center">
+            <p class="text-gray-300">Thank you for your purchase!</p>
+            <p class="text-gray-300">Contact: 09787647412</p>
+            <p class="text-gray-300">TikTok: @funnyzone737</p>
+            <p class="text-gray-300">YouTube: @funnyzone-737</p>
+            <p class="text-gray-300">Viber/Telegram: 09787647412</p>
+        </div>
+    </div>
+    <div class="btn-container mt-4" id="receiptButtons">
+        <button type="button" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg" onclick="closeReceiptModal()">Close</button>
+        <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg" onclick="downloadReceipt()">Download as Image</button>
+    </div>
+`;
+DOM.receiptContent.innerHTML = receiptHtml;
 }
 
 function generateReceiptFromDetails(orderId) {
